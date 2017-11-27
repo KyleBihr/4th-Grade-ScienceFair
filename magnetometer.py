@@ -8,6 +8,10 @@ from sense_hat import SenseHat
 # Flag to enable/disable debug print statements
 debug_flag = False
 
+# Number of samples to skip while the magnetometer 
+# settles in on actual value
+skip_sample = 12
+
 def take_reading(hat, debug):
     """
     Take a reading of the magnetic flux density from the
@@ -45,29 +49,23 @@ def record_data(hat, delay, debug):
     # List to store samples of magnetic flux density
     recorded_data = []
 
+    # Display red S when starting recording
+    hat.show_letter('S', [255,0,0])
+    
     for i in range (0, 20):
-        # Use sense hat LED matrix to display progress
-        # One iteration lights one pixel on LED starting at (0,0)
-        # TODO there has to be a better way to do this
-        if i < 8:
-            hat.set_pixel(i,0,0,255,0)
-        elif i < 16:
-            x = i - 8
-            hat.set_pixel(x,1,0,255,0)
-        elif i < 24:
-            x = i - 16
-            hat.set_pixel(x,2,0,255,0)
-        elif i < 32:
-            x = i - 24
-            hat.set_pixel(x,3,0,255,0)
-            
-        # Get a reading from the magnetometer and add it to the list of data
-        recorded_data.append(take_reading(hat, False))
+        # Since it takes the magnetometer multiple samples to settle
+        # on a value do not record data until values settle
+        if i >= skip_sample:
+            # Display green R when recording
+            hat.show_letter('R', [0,255,0])
+            # Get a reading from the magnetometer and add it to the list of data
+            recorded_data.append(take_reading(hat, debug))
+        else:
+            take_reading(hat, debug)
+        
         # Wait before taking another measurement
         sleep(delay)
 
-    # TODO figure how we ignore at least the first 10-12 readings.
-    # It seems to take that many to settle in on stable value
     print("Recorded magnetic flux densities (uT):")
     print(recorded_data)
 
@@ -76,8 +74,11 @@ hat = SenseHat()
 #Configure IMU so only the compass is active
 hat.set_imu_config(True, False, False)
 
+# Display blue W when waiting for button press to start recording
+hat.show_letter('W', [0,0,255])
+
+# Once any joystick button press is received start recording
 event = hat.stick.wait_for_event()
-print("The joystick was {} {}".format(event.action, event.direction))
 if event.action == "pressed":
     record_data(hat, 0.5, debug_flag)
 
