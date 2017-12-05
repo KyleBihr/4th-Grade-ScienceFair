@@ -39,6 +39,20 @@ def take_reading(hat, debug):
 
     return magnitude
 
+def find_mean(recorded_data_list):
+    list_size = len(recorded_data_list)
+    total_of_numbers = 0
+
+    for x in recorded_data_list:
+        total_of_numbers = total_of_numbers + x
+
+    if list_size > 0:
+        mean = total_of_numbers / list_size
+        return mean
+    else:
+        return 0
+        
+
 def record_data(hat, delay, debug):
     """
     Runs a loop to take multiple measurements
@@ -68,6 +82,10 @@ def record_data(hat, delay, debug):
 
     print("Recorded magnetic flux densities (uT):")
     print(recorded_data)
+
+    mean = find_mean(recorded_data)
+    print("average magnetic flux density (uT):")
+    print(mean)
 
 hat = SenseHat()
 
