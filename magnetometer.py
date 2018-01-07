@@ -2,7 +2,7 @@
 # LED array
 
 import numpy as np
-from time import sleep
+from time import sleep, localtime, strftime 
 from sense_hat import SenseHat
 
 # Flag to enable/disable debug print statements
@@ -51,7 +51,45 @@ def find_mean(recorded_data_list):
         return mean
     else:
         return 0
-        
+
+def write_to_file(temp, recorded_data, mean):
+    """
+    Writes recorded data to a file
+    temp, recorded_data, and mean are all data passed
+    in to be written to a file named for the date/time
+    the test was completed
+    """
+    # Get current time
+    date_time = strftime("%Y-%m-%d_%H.%M.%S", localtime())
+    print(date_time)
+    print("Ambient temperature (degrees C):")
+    print(temp)
+    print("Recorded magnetic flux densities (uT):")
+    print(recorded_data)
+    print("Average magnetic flux density (uT):")
+    print(mean)
+    
+    # Open file
+    file = open(date_time, 'w')
+    
+    # Write time and date to file
+    file.write("Current date & time: ")
+    file.write(date_time + '\n\n')
+    
+    # Write ambient temperature to file
+    file.write("Ambient temperature (degrees C): ")
+    file.write(str(temp) + '\n\n')
+    
+    # Write recorded data to file
+    file.write("Recorded magnetic flux densities (uT): ")
+    file.write(str(recorded_data) + '\n\n')
+    
+    # Write mean to file
+    file.write("Average magnetic flux density (uT): ")
+    file.write(str(mean) + '\n')
+
+    # Close file
+    file.close()
 
 def record_data(hat, delay, debug):
     """
@@ -80,12 +118,12 @@ def record_data(hat, delay, debug):
         # Wait before taking another measurement
         sleep(delay)
 
-    print("Recorded magnetic flux densities (uT):")
-    print(recorded_data)
-
     mean = find_mean(recorded_data)
-    print("average magnetic flux density (uT):")
-    print(mean)
+
+    # Get the ambient temperature in degrees C
+    temp = hat.get_temperature()
+
+    write_to_file(temp, recorded_data, mean)    
 
 hat = SenseHat()
 
