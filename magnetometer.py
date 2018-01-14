@@ -52,7 +52,25 @@ def find_mean(recorded_data_list):
     else:
         return 0
 
-def write_to_file(temp, recorded_data, mean):
+def input_mag_temp():
+    """
+    Imputs the magnet temperature from the command line for
+    the experiment run. Stores it in mag_temp or sets the
+    use_ambient flag
+    """
+    mag_temp = input("Enter the magnet temperature (F) or amb for ambient: ")
+    print("Read value: " + mag_temp)
+
+    if mag_temp != "amb":
+        mag_tempF = float(mag_temp)
+        # convert from F to C
+        mag_tempF = (mag_tempF - 32)/1.8
+        mag_temp = str(mag_tempF)
+        
+    print("mag_temp = " + mag_temp)
+    return mag_temp
+
+def write_to_file(temp, mag_temp, recorded_data, mean):
     """
     Writes recorded data to a file
     temp, recorded_data, and mean are all data passed
@@ -61,9 +79,18 @@ def write_to_file(temp, recorded_data, mean):
     """
     # Get current time
     date_time = strftime("%Y-%m-%d_%H.%M.%S", localtime())
+
+    # Get magnet temp
+    if mag_temp == "amb":
+        magnet_tempC = temp
+    else:
+        magnet_tempC = mag_temp
+    
     print(date_time)
     print("Ambient temperature (degrees C):")
     print(temp)
+    print("Magnet temperature (degrees C): ")
+    print(magnet_tempC)
     print("Recorded magnetic flux densities (uT):")
     print(recorded_data)
     print("Average magnetic flux density (uT):")
@@ -79,10 +106,14 @@ def write_to_file(temp, recorded_data, mean):
     # Write ambient temperature to file
     file.write("Ambient temperature (degrees C): ")
     file.write(str(temp) + '\n\n')
+
+    # Write magnet temperature
+    file.write("Magnet temperature (degrees C): ")
+    file.write(str(magnet_tempC) + '\n\n')
     
     # Write recorded data to file
     file.write("Recorded magnetic flux densities (uT): ")
-    file.write(str(recorded_data) + '\n\n')
+    file.write(str(recorded_data) + '\n\n')  
     
     # Write mean to file
     file.write("Average magnetic flux density (uT): ")
@@ -123,7 +154,13 @@ def record_data(hat, delay, debug):
     # Get the ambient temperature in degrees C
     temp = hat.get_temperature()
 
-    write_to_file(temp, recorded_data, mean)    
+    # Flag to use the ambient temp as the magnet temp
+    use_ambient = False
+
+    mag_temp = input_mag_temp()
+
+    write_to_file(temp, mag_temp, recorded_data, mean)
+
 
 hat = SenseHat()
 
