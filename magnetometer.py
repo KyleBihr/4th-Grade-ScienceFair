@@ -55,19 +55,11 @@ def find_mean(recorded_data_list):
 def input_mag_temp():
     """
     Imputs the magnet temperature from the command line for
-    the experiment run. Stores it in mag_temp or sets the
-    use_ambient flag
+    the experiment run.
     """
-    mag_temp = input("Enter the magnet temperature (F) or amb for ambient: ")
-    print("Read value: " + mag_temp)
+    mag_temp = input("Enter the magnet temperature (C) or amb for ambient: ")
+    print("Read temp value: " + mag_temp)
 
-    if mag_temp != "amb":
-        mag_tempF = float(mag_temp)
-        # convert from F to C
-        mag_tempF = (mag_tempF - 32)/1.8
-        mag_temp = str(mag_tempF)
-        
-    print("mag_temp = " + mag_temp)
     return mag_temp
 
 def write_to_file(temp, mag_temp, recorded_data, mean):
